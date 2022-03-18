@@ -1,6 +1,6 @@
 import logging
 
-from config import baseUrl, productID, hospitalId, month, cookie, userInfo, proxies
+from config import baseUrl, productID, hospitalId, month, cookie, userInfo, proxies, timeout
 from util.getProductList import getProductList
 from model.head import getHeader
 import requests
@@ -24,7 +24,7 @@ def getUserInfo(isFlash=False):
         count = 3
         while count > 0:
             try:
-                res = requests.get(baseUrl, headers=head, params=params, cookies=cookie, timeout=2, proxies=proxies).json()
+                res = requests.get(baseUrl, headers=head, params=params, cookies=cookie, timeout=timeout, proxies=proxies).json()
             except Exception as e:
                 logging.error("超时，正在重试")
                 logging.error(e)
@@ -56,7 +56,7 @@ def GetCustSubscribeDateAll():
     count = 3
     while count > 0:
         try:
-            res = requests.get(baseUrl, headers=head, params=params, cookies=cookie, proxies=proxies).json()
+            res = requests.get(baseUrl, headers=head, params=params, cookies=cookie, proxies=proxies, timeout=timeout).json()
         except Exception as e:
             logging.error("超时，正在重试")
             logging.error(e)
@@ -87,7 +87,7 @@ def GetCustSubscribeDateDetail(scdate):
     count = 3
     while count > 0:
         try:
-            res = requests.get(baseUrl, headers=head, params=params, cookies=cookie, proxies=proxies)
+            res = requests.get(baseUrl, headers=head, params=params, cookies=cookie, proxies=proxies, timeout=timeout)
         except Exception as e:
             logging.error("超时，正在重试")
             logging.error(e)

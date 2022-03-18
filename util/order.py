@@ -3,7 +3,7 @@ import requests
 import util.person as person
 from model.orderPost import getOrderPostInfoEncrypted
 from model.head import getHeader
-from config import baseUrl, cookie, postUrl, proxies
+from config import baseUrl, cookie, postUrl, proxies, timeout
 import json
 import logging
 logging.basicConfig(
@@ -33,14 +33,13 @@ def GetCaptcha(mxid):
         "mxid": mxid
     }
 
-    count = 3
-    while count > 0:
+
+    while True:
         try:
-            res = requests.get(baseUrl, params=params, headers=head, cookies=cookie, allow_redirects=False, proxies=proxies)
+            res = requests.get(baseUrl, params=params, headers=head, cookies=cookie, allow_redirects=False, proxies=proxies, timeout=timeout)
         except Exception as e:
             logging.error("超时，正在重试")
             logging.error(e)
-            count -= 1
         else:
             logging.info("GetCaptcha success")
             if res.json()['status'] == 200:
@@ -52,8 +51,7 @@ def GetCaptcha(mxid):
                 return new_cookie
             else:
                 return False
-    logging.error("连接失败！")
-    exit(-1)
+
 
 
 # 需要加密之后的数据data和new_cookie
@@ -63,13 +61,16 @@ def OrderPost(new_cookie, data):
         head = getHeader()
         while True:
             try:
-                res = requests.post(postUrl, headers=head, cookies=new_cookie, data=data, proxies=proxies)
+                res = requests.post(postUrl, headers=head, cookies=new_cookie, data=data, proxies=proxies, timeout=timeout)
             except requests.exceptions.Timeout as e:
                 logging.error(e)
                 logging.error("Order Post 超时，正在重试!")
             except requests.exceptions.ProxyError as e:
                 logging.error(e)
                 logging.error("Proxy 错误")
+            except Exception as e:
+                logging.error(e)
+                logging.error("未知错误")
             else:
                 # print(res.text)
                 logging.info("order Post提交成功，返回 : "+res.text)
@@ -94,22 +95,19 @@ def GetOrderStatus(new_new_cookie):
     }
     head = getHeader()
 
-    count = 3
-    while count > 0:
+    while True:
         try:
-            res = requests.get(baseUrl, params=params, headers=head, cookies=new_new_cookie, proxies=proxies)
+            res = requests.get(baseUrl, params=params, headers=head, cookies=new_new_cookie, proxies=proxies, timeout=timeout)
         except Exception as e:
             logging.error("超时，正在重试")
             logging.error(e)
-            count -= 1
         else:
             logging.info(res.text)
             last_cookie = res.cookies.get_dict()
             logging.info("last_Cookie : " + str(last_cookie))
             return last_cookie, res.text
 
-    logging.error("连接失败！")
-    exit(-1)
+
 
 
 if __name__ == '__main__':

@@ -198,6 +198,7 @@ def threadRun(count):
 
 
 if __name__ == '__main__':
-
     # run()
-    threadRun(5)
+    schedule.every().day.at("16:54").do(threadRun, 7)
+    while True:
+        schedule.run_pending()
